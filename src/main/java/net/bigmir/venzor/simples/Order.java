@@ -36,4 +36,13 @@ public class Order {
     public void setGoods(String goods) {
         this.goods = goods;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Order: "+this.getId()+"; ");
+        sb.append("for user : "+this.getUser()+"; ");
+        sb.append("product : "+this.getGoods()+"; ");
+        return sb.toString();
+    }
 }

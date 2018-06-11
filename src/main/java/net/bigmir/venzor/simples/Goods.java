@@ -46,4 +46,13 @@ public class Goods {
     public void setPrice(int price) {
         this.price = price;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Product: "+this.getName()+"; ");
+        sb.append("description: "+this.getDescription()+"; ");
+        sb.append("price: "+this.getPrice()+"; ");
+        return sb.toString();
+    }
 }
