@@ -6,18 +6,22 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OrderImpl implements SimpleDAO<Order> {
+public class OrderImpl implements OrdersDAO {
     private final Connection conn;
+    private final String sql = "SELECT orders.id, users.login, goods.name FROM orders" +
+            " INNER JOIN users ON orders.users_id=users.id" +
+            " INNER JOIN goods ON orders.goods_id=goods.id";
 
     public OrderImpl(Connection conn) {
         this.conn = conn;
     }
 
     public void add(Order arg) {
+        String sqlOne = "INSERT INTO orders (users_id, goods_id) " +
+                "VALUES((SELECT id FROM users WHERE login=\"" +arg.getUser() + "\"), " +
+                "(SELECT id FROM goods WHERE name=\"" +arg.getGoods() + "\"))";
         try {
-            try (PreparedStatement st = conn.prepareStatement("INSERT INTO orders (user_id, goods_id) VALUES((SELECT id FROM users WHERE login=?), (SELECT id FROM goods WHERE name=?))")) {
-                st.setString(1, arg.getUser());
-                st.setString(2, arg.getGoods());
+            try (PreparedStatement st = conn.prepareStatement(sqlOne)) {//
                 st.executeUpdate();
             }
         } catch (SQLException ex) {
@@ -26,12 +30,12 @@ public class OrderImpl implements SimpleDAO<Order> {
 
     }
 
-    public void delete(String name) {
-        if (this.find(name) != null) {
+    public void delete(int orderId) {
+        if (this.find(orderId) != null) {
             try {
-                PreparedStatement ps = conn.prepareStatement("DELETE FROM users WHERE login=?");
+                PreparedStatement ps = conn.prepareStatement("DELETE FROM orders WHERE id=?");
                 try {
-                    ps.setString(1, name);
+                    ps.setInt(1, orderId);
                     ps.execute();
                 } finally {
                     ps.close();
@@ -48,9 +52,7 @@ public class OrderImpl implements SimpleDAO<Order> {
 
         try {
             try (Statement st = conn.createStatement()) {
-                try (ResultSet rs = st.executeQuery("SELECT orders.id, users.login, goods.name FROM orders" +
-                        "INNER JOIN users ON orders.users_id=users.id" +
-                        "INNER JOIN goods ON orders.goods_id=goods.id")) {
+                try (ResultSet rs = st.executeQuery(sql)) {
                     while (rs.next()) {
                         Order order = new Order();
 
@@ -69,19 +71,17 @@ public class OrderImpl implements SimpleDAO<Order> {
         }
     }
 
-    public Client find(String name) {
-        Client resClient = new Client();
-        String sql = "SELECT * FROM users where login= \"" + name + "\"";
+    public Order find(int orderId) {
+        Order resClient = new Order();
         try {
             try (Statement st = conn.createStatement()) {
                 try (ResultSet rs = st.executeQuery(sql)) {
                     if (rs.next()) {
                         resClient.setId(rs.getInt(1));
-                        resClient.setLogin(rs.getString(2));
-                        resClient.setPassword(rs.getString(3));
-                        resClient.setAdress(rs.getString(4));
+                        resClient.setUser(rs.getString(2));
+                        resClient.setGoods(rs.getString(3));
                     } else {
-                        System.out.println("wrong user");
+                        System.out.println("wrong order");
                         return null;
                     }
                 }
@@ -93,8 +93,5 @@ public class OrderImpl implements SimpleDAO<Order> {
         }
     }
 
-    @Override
-    public boolean existing(String name) {
-        return false;
-    }
+
 }

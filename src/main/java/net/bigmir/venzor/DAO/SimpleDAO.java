@@ -7,5 +7,5 @@ public interface SimpleDAO<T> {
     void delete(String name);
     List<T> getAll();
     T find(String name);
-    boolean existing(String name);
+
 }

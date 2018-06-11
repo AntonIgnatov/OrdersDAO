@@ -16,11 +16,12 @@ public class GoodImpl implements SimpleDAO<Goods> {
     public void add(Goods arg) {
         if (this.find(arg.getName())==null) {
             try {
-                try (PreparedStatement st = conn.prepareStatement("INSERT INTO goors (name, description, price) VALUES(?, ?, ?)")) {
+                try (PreparedStatement st = conn.prepareStatement("INSERT INTO goods (name, description, price) VALUES(?, ?, ?)")) {
                     st.setString(1, arg.getName());
                     st.setString(2, arg.getDescription());
                     st.setInt(3, arg.getPrice());
                     st.executeUpdate();
+                    System.out.println("product added");
                 }
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
@@ -84,7 +85,6 @@ public class GoodImpl implements SimpleDAO<Goods> {
                         resGoods.setDescription(rs.getString(3));
                         resGoods.setPrice(rs.getInt(4));
                     } else {
-                        System.out.println("wrong user");
                         return null;
                     }
                 }
@@ -96,8 +96,5 @@ public class GoodImpl implements SimpleDAO<Goods> {
         }
     }
 
-    @Override
-    public boolean existing(String name) {
-        return false;
-    }
+
 }
