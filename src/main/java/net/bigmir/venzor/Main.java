@@ -1,22 +1,31 @@
 package net.bigmir.venzor;
 
-import net.bigmir.venzor.DAO.ClientImpl;
+
 import net.bigmir.venzor.shared.ConnectionFactory;
-import net.bigmir.venzor.simples.Client;
+import net.bigmir.venzor.shared.InitTables;
+import net.bigmir.venzor.shared.WorkingLoops;
+
 
 import java.sql.Connection;
+import java.sql.SQLException;
+
 
 public class Main {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         ConnectionFactory factory = new ConnectionFactory();
-        Connection con = factory.getConnection();
-        Client client = new Client("root", "root", "root");
-        Client client3 = new Client("root1", "root", "root");
-        ClientImpl client1 = new ClientImpl(con);
-        client1.add(client);
-        client1.add(client);
-        client1.delete("root");
-        client1.add(client3);
+        Connection conn = factory.getConnection();
+        InitTables initTables = new InitTables(conn);
+        try {
+            initTables.init();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        WorkingLoops work = new WorkingLoops(conn);
+        work.init();
+
 
     }
+
+
 }
